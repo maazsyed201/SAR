@@ -1,0 +1,52 @@
+// code to get range and doppler values from mmwave sensor
+#include <HardwareSerial.h>
+
+// Define UART pins for ESP32
+#define RXD2 16
+#define TXD2 17
+
+// Create a HardwareSerial instance for UART communication
+HardwareSerial mmWaveSerial(2);
+
+void setup() {
+  // Initialize Serial Monitor for debugging
+  Serial.begin(115200);
+
+  // Initialize UART communication with the mmWave sensor
+  mmWaveSerial.begin(115200, SERIAL_8N1, RXD2, TXD2);
+
+  Serial.println("Initializing mmWave Sensor...");
+}
+
+void loop() {
+  // Check if data is available from the mmWave sensor
+  if (mmWaveSerial.available()) {
+    // Read the incoming data
+    String data = mmWaveSerial.readStringUntil('\n');
+
+    // Parse the data to extract range and Doppler values
+    // Assuming the data format is: "Range: X.XX m, Doppler: Y.YY m/s"
+    int rangeIndex = data.indexOf("Range:");
+    int dopplerIndex = data.indexOf("Doppler:");
+
+    if (rangeIndex != -1 && dopplerIndex != -1) {
+      // Extract range value
+      String rangeStr = data.substring(rangeIndex + 7, dopplerIndex - 2);
+      float range = rangeStr.toFloat();
+
+      // Extract Doppler value
+      String dopplerStr = data.substring(dopplerIndex + 9);
+      float doppler = dopplerStr.toFloat();
+
+      // Print the values to the Serial Monitor
+      Serial.print("Range: ");
+      Serial.print(range);
+      Serial.print(" m, Doppler: ");
+      Serial.print(doppler);
+      Serial.println(" m/s");
+    }
+  }
+
+  // Add a small delay to avoid flooding the Serial Monitor
+  delay(100);
+}
