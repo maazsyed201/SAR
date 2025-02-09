@@ -1,0 +1,39 @@
+//matlab code
+% Define Range and Doppler axes
+range_values = linspace(0, 52.847, 90); % Range values from 0 to 50 meters
+doppler_values = linspace(0, 90, 100); % Doppler values from 0 to 100 units
+
+% Create a 2D grid for range and Doppler
+[Range, Doppler] = meshgrid(range_values, doppler_values);
+
+% Simulate a Gaussian signal for demonstration
+% Center the signal in both range and Doppler axes
+signal = exp(-((Range - 25).^2 + (Doppler - 50).^2) / (2 * 10^2));
+
+% Simulate sensor readings
+ambient_temp = 25 + randn * 2; % Simulated ambient temperature
+object_temp = 30 + randn * 2; % Simulated object temperature
+magnetometer = [randn * 5, randn * 5, randn * 5]; % Simulated magnetometer readings
+microphone_level = randi([0, 4095]); % Simulated microphone value
+
+% Apply 2D FFT (Range and Doppler dimensions)
+range_doppler_fft = fft2(signal); % 2D FFT
+range_doppler_fft = fftshift(range_doppler_fft); % Center zero frequency
+
+% Convert to dB scale for visualization
+range_doppler_db = 20 * log10(abs(range_doppler_fft) + eps);
+
+% Plot the Range-Doppler Map
+figure;
+imagesc(range_values, doppler_values, range_doppler_db);
+set(gca, 'YDir', 'normal'); % Set Y-axis to normal orientation
+colorbar; % Add color scale
+caxis([-60 0]); % Adjust dynamic range for better visualization
+xlabel('Range'); ylabel('Doppler');
+title('Range-Doppler Plot by 2D FFT / FFT');
+
+% Display sensor information
+fprintf('Ambient Temperature: %.2f °C\n', ambient_temp);
+fprintf('Object Temperature: %.2f °C\n', object_temp);
+fprintf('Magnetometer Readings: X=%.2f, Y=%.2f, Z=%.2f\n', magnetometer(1), magnetometer(2), magnetometer(3));
+fprintf('Microphone Level: %d\n', microphone_level);
