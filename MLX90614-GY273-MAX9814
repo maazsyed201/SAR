@@ -1,0 +1,103 @@
+#include <Wire.h>
+#include <Adafruit_MLX90614.h>
+#include <QMC5883LCompass.h>
+
+// MLX90614 Temperature Sensor
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+
+// GY-273 Magnetometer
+QMC5883LCompass compass;
+
+// MAX9814 Microphone
+#define MIC_PIN 34   // ADC pin connected to MAX9814 OUT
+
+int calibrationData[3][2] = {{0, 0}, {0, 0}, {0, 0}};
+bool calibrated = false;
+
+void setup() {
+  Serial.begin(115200);
+
+  // Initialize MLX90614 and GY-273
+  Wire.begin(21, 22);
+  mlx.begin();
+  compass.init();
+  Serial.println("Sensors initialized.");
+
+  // Microphone configuration
+  analogReadResolution(12);
+  analogSetAttenuation(ADC_11db);
+
+  Serial.println("System Initialization Complete.");
+}
+
+void loop() {
+  if (!calibrated) {
+    calibrateCompass();
+  } else {
+    // Ask user to position the module
+    for (int pos = 1; pos <= 3; pos++) {
+      Serial.print("\nPosition the module at position ");
+      Serial.print(pos);
+      Serial.println(" and wait 5 seconds...");
+      delay(5000);
+
+      // Take sensor readings
+      float ambientTemp = mlx.readAmbientTempC();
+      float objectTemp = mlx.readObjectTempC();
+      int micValue = analogRead(MIC_PIN);
+      int x, y, z;
+
+      compass.read();
+      x = compass.getX();
+      y = compass.getY();
+      z = compass.getZ();
+
+      // Display readings
+      Serial.print("Position ");
+      Serial.print(pos);
+      Serial.println(" Readings:");
+      Serial.print("Temperature: Ambient = ");
+      Serial.print(ambientTemp);
+      Serial.print(" °C, Object = ");
+      Serial.print(objectTemp);
+      Serial.println(" °C");
+      Serial.print("Magnetometer: X = ");
+      Serial.print(x);
+      Serial.print(", Y = ");
+      Serial.print(y);
+      Serial.print(", Z = ");
+      Serial.println(z);
+      Serial.print("Sound Level: ");
+      Serial.println(micValue);
+      Serial.println();
+    }
+
+    // Halt after three positions
+    while (true);
+  }
+}
+
+void calibrateCompass() {
+  Serial.println("Calibrating Compass...");
+  int x, y, z;
+  long startTime = millis();
+  while (millis() - startTime < 10000) {
+    compass.read();
+    x = compass.getX();
+    y = compass.getY();
+    z = compass.getZ();
+
+    calibrationData[0][0] = min(calibrationData[0][0], x);
+    calibrationData[0][1] = max(calibrationData[0][1], x);
+    calibrationData[1][0] = min(calibrationData[1][0], y);
+    calibrationData[1][1] = max(calibrationData[1][1], y);
+    calibrationData[2][0] = min(calibrationData[2][0], z);
+    calibrationData[2][1] = max(calibrationData[2][1], z);
+  }
+
+  compass.setCalibration(calibrationData[0][0], calibrationData[0][1],
+                         calibrationData[1][0], calibrationData[1][1],
+                         calibrationData[2][0], calibrationData[2][1]);
+  Serial.println("Calibration Complete.");
+  calibrated = true;
+}
