@@ -1,5 +1,4 @@
 # SAR
-Here are the answers to your questions regarding your SAR project:
 
 What the project does  
 The project involves the design, development, and testing of a Circular Synthetic Aperture Radar (SAR) prototype** using **FMCW (Frequency Modulated Continuous Wave) and mmWave (millimeter-wave) technology to achieve high-resolution imaging. The system integrates multiple sensors a 24 GHz mmWave radar, MLX90614 infrared thermometer, MAX9814 microphone, and GY-273 magnetometer—to enhance image quality and target recognition. The Range-Doppler (RD) algorithm, deep learning models, and back-projection techniques improve resolution, noise reduction, and accuracy in identifying objects.
