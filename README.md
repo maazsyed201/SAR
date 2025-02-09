@@ -43,4 +43,3 @@ Who maintains and contributes to the project
 The project is maintained and contributed to by:  
 - Dr. M. Rajeshwari (Supervisor & Research Mentor, Corresponding Author)* – Provides academic and technical guidance.  
 - Syed Maaz, Samith R, B. P. Vineeth Krishna, S Nandan (Project Developers & Contributors)* – Responsible for implementation, testing, and improvements.  
-- Potential Future Contributors – Researchers, students, or developers who expand or optimize the system.  
